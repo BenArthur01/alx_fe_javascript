@@ -31,21 +31,22 @@ function populateCategories() {
 populateCategories();
 
 
-// Adding an event listener to show a random quote from the selected category.
-categorySelect.addEventListener("change", () => {
-    const selected = categorySelect.value;
+// Adding a function that selects and displays a random quote from the selected category.
+function displayRandomQuote() {
+    const selectedCategory = categorySelect.value;
 
     // Filter quotes by selected category
-    const randomQuotes = quotes.filter(q => q.category === selected);
+    const filteredQuotes = quotes.filter(q => q.category === selectedCategory);
 
-    // Pick a random quote
+    // Select a random quote
     const randomQuote = filteredQuotes[Math.floor(Math.random() * filteredQuotes.length)];
 
-    // Display it
+    // Update the DOM & Display it
     quoteDisplay.textContent = randomQuote ? randomQuote.text : "No quotes available.";
-});
+};
 
 // Adding New quote Dynamically
+// This function would take user input and add a new quote to the array, then updadte the UI.
 function addQuote() {
     const quoteText = document.getElementById("newQuoteText").value.trim();
     const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
@@ -56,11 +57,14 @@ function addQuote() {
         return;
     }
     
-    // Add to quotes array
+    // Add new quote to array
     quotes.push({ text: quoteText, category: quoteCategory });
 
     // Update dropdown and clear inputs
     populateCategories();
+    // Clear input fields
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
+
+    document.getElementById("showQuoteBtn").addEventListener("click", displayRandomQuote);
 }
