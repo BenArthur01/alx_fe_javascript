@@ -1,6 +1,6 @@
 // Initial quotes array with categories
 let quotes = [
-    { text: "The journey of a thousand milesbegins with one step", category: "Motivation" },
+    { text: "The journey of a thousand miles begins with one step", category: "Motivation" },
     { text: "Simplicity is the ultimate sophistication", category: "Design" }
 ];
 
@@ -65,6 +65,7 @@ function addQuote() {
     // Clear input fields
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
-
-    document.getElementById("showQuoteBtn").addEventListener("click", displayRandomQuote);
 }
+
+// Add this once, after DOM references
+ document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
