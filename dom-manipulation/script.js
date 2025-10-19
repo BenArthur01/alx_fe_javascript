@@ -1,10 +1,14 @@
 // Initial quotes array with categories
-let quotes = [
+// Load quotes from localStorage or use default
+let quotes = JSON.parse(localStorage.getItem("quotes")) || [
     { text: "The journey of a thousand miles begins with one step", category: "Motivation" },
     { text: "Simplicity is the ultimate sophistication", category: "Design" }
 ];
 
-
+// Saving quotes to local storage
+function saveQuotes() {
+    localStorage.setItem("quotes", JSON.stringify(quotes));
+}
 // DOM References
 const categorySelect = document.getElementById("categorySelect");
 const quoteDisplay = document.getElementById("quoteDisplay");
@@ -43,7 +47,16 @@ function displayRandomQuote() {
 
     // Update the DOM & Display it
     quoteDisplay.textContent = randomQuote ? randomQuote.text : "No quotes available.";
-};
+
+    // Save last viewed quote in sessionStorage
+    sessionStorage.setItem("lastQuote", randomQuote?.text || "");
+}
+
+// Optional: Load last quote on page load
+window.addEventListener("load", () => {
+    const lastQuote = sessionStorage.getItem("lastQuote");
+    if (lastQuote) quoteDisplay.textContent = lastQuote;
+});
 
 // Adding New quote Dynamically
 // This function would take user input and add a new quote to the array, then updadte the UI.
@@ -59,6 +72,7 @@ function addQuote() {
     
     // Add new quote to array
     quotes.push({ text: quoteText, category: quoteCategory });
+    saveQuotes.push(); // Save to localStorage
 
     // Update dropdown and clear inputs
     populateCategories();
@@ -69,3 +83,40 @@ function addQuote() {
 
 // Add this once, after DOM references
  document.getElementById("newQuote").addEventListener("click", displayRandomQuote);
+
+// Adding a button to download the quotes as a .json file
+function exportToJson() {
+    const dataStr = JSON.stringify(quotes, null, 2); //Pretty format
+    const blob = new Blob([dataStr], { type: "application.json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "quotes.json";
+    a.click();
+
+    URL.revokeObjectURL(url); // Clean up
+} 
+
+// Adding a file input to upload a .json file
+function importFromJsonFile(event) {
+    const fileReader = new FileReader();
+
+    fileReader.onload = function () {
+        try {
+            const importedQuotes = JSON.parse(fileReader.result);
+            if (Array.isArray(importedQuotes)) {
+                quotes = importedQuotes;
+                saveQuotes(); //Save to localStorage
+                populateCategories();
+                alert("Quotes imported successfully!");
+            } else {
+                alert("Invalid JSON format.");
+            }
+        } catch (error) {
+            alert("Error reading file: " + error.message);
+        }
+    };
+
+    fileReader.readAsText(event.target.files[0]);
+}
