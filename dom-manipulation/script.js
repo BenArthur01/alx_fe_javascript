@@ -152,3 +152,49 @@ function importFromJsonFile(event) {
 
     fileReader.readAsText(event.target.files[0]);
 }
+
+// Simulating Server Interaction
+// Creating a simple JSON file to simulate server data
+// Fetching quotes from the server
+async function fetchQuotesFromServer() {
+    try {
+        const response = await fetch("https://jsonplaceholder.typicode.com/posts"); //Replace with your actual endpoint
+        const data = await response.json();
+
+        // Simulate quote structure
+        const serverQuotes = data.slice(0, 5).map(post => ({
+        text: post.title,
+        category: "Server"
+        }));
+
+        return serverQuotes;
+    }   catch (error) {
+        console.error("Error fetching server quotes:", error);
+        return [];
+    }
+}
+
+// Implementing Data Syncing
+// Periodically checking for updates and merge with local data
+async function syncQuotes() {
+    const serverQuotes = await fetchQuotesFromServer();
+
+    // Simple conflict resolution: server data takes precedence
+    const mergedQuotes = [...serverQuotes];
+
+    // Optionally add local quotes that aren't duplicates
+    quotes.forEach(localQuote => {
+        const exists = serverQuotes.some(serverQuote => serverQuote.text === localQuote.text);
+        if (!exists) mergedQuotes.push(localQuote);
+    });
+
+    quotes = mergedQuotes;
+    saveQuotes(); // Upddate localStorage
+    populateCategories();
+    filterQuotes();
+
+    // Notify user
+    alert("Quotes synced with server. Server data has been prioritized.");
+    
+    setInterval(syncQuotes, 30000); // Sync every 30 seconds
+}
