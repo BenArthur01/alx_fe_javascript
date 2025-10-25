@@ -19,8 +19,9 @@ function populateCategories() {
     // Get unique categories
     const categories = [...new Set(quotes.map(q => q.category))];
 
-    // Clear existing options
-    categorySelect.innerHTML = '<option value="">-- Select Category --</option>';
+    // Clear and repopulate filter dropdown
+    const filterDropdown = document.getElementById("categoryFilter");
+    filterDropdown.innerHTML = '<option value="all">-- All categories --</option>';
 
     // Add each category to dropdown
     categories.forEach(cat => {
@@ -52,10 +53,39 @@ function displayRandomQuote() {
     sessionStorage.setItem("lastQuote", randomQuote?.text || "");
 }
 
-// Optional: Load last quote on page load
+
+// Creating the filterQuotes() function 
+function filterQuotes() {
+    const selectedCategory = document.getElementById("categoryFilter").value;
+
+    // Save selected category to localStorage
+    localStorage.setItem("lastSelectedCategery", selectedCategory);
+
+    // Filter quotes
+    const filtered = selectedCategory === "all"
+      ? quotes
+      : quotes.filter(q => q.category === selectedCategory);
+
+    // Display filtered quotes
+    const quoteDisplay = document.getElementById("quoteDisplay");
+    quoteDisplay.innerHTML = ""; // Clear previous quotes
+
+    filtered.forEach(q => {
+        const p = document.createElement("p");
+        p.textDisplay.appendChild(p);
+    });
+}    
+
+// Restore last Selected Filter on Page Load
 window.addEventListener("load", () => {
-    const lastQuote = sessionStorage.getItem("lastQuote");
-    if (lastQuote) quoteDisplay.textContent = lastQuote;
+    const lastCategory = localStorage.getItem("lastSelectedCategory");
+    
+    if (lastCategory) {
+        document.getElementById("categoryFilter").value = lastCategory;
+        filterQuotes(); // Apply filter
+    } else {
+        populateCategories(); // Initial setup
+    }
 });
 
 // Adding New quote Dynamically
@@ -72,10 +102,12 @@ function addQuote() {
     
     // Add new quote to array
     quotes.push({ text: quoteText, category: quoteCategory });
-    saveQuotes.push(); // Save to localStorage
+    saveQuotes(); // Save to localStorage
 
     // Update dropdown and clear inputs
-    populateCategories();
+    populateCategories(); // Refresh dropdowns
+
+    filterQuotes(); // Reapply filter
     // Clear input fields
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
